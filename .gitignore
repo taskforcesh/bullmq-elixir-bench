@@ -1,0 +1,31 @@
+# Dependencies
+/deps/
+
+# Build artifacts
+/_build/
+
+# Generated files
+/priv/static/
+
+# Test coverage
+/cover/
+
+# Mix archives
+/.mix/
+
+# Dialyzer PLTs
+/priv/plts/
+
+# IDE / Editor
+.DS_Store
+.idea/
+*.iml
+.vscode/
+.elixir_ls/
+
+# Editor backup files
+*~
+\#*\#
+
+# Erlang crash dumps
+erl_crash.dump
