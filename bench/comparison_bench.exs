@@ -421,6 +421,20 @@ defmodule ComparisonBenchmark do
     # Ensure Oban is running with queues disabled
     ensure_oban_running()
 
+    # Use counter for fair comparison (same as BullMQ)
+    processed = :counters.new(1, [:atomics])
+
+    # Attach telemetry handler to track completions
+    handler_id = "benchmark_completion_handler_#{:erlang.unique_integer([:positive])}"
+    :telemetry.attach(
+      handler_id,
+      [:oban, :job, :stop],
+      fn _event, _measurements, _metadata, _config ->
+        :counters.add(processed, 1, 1)
+      end,
+      nil
+    )
+
     changesets = for i <- 1..job_count do
       ObanWorker.new(%{index: i, duration_ms: job_duration, type: "sleep"})
     end
@@ -437,12 +451,15 @@ defmodule ComparisonBenchmark do
 
     theoretical_min = div(job_count * job_duration, concurrency)
     timeout = max(theoretical_min * 3, 120_000)
-    wait_for_oban_completion(job_count, timeout)
+    wait_for_completion(processed, job_count, timeout)
 
     end_time = System.monotonic_time(:microsecond)
     time_ms = (end_time - start_time) / 1000
 
-    completed = count_oban_completed()
+    completed = :counters.get(processed, 1)
+
+    # Cleanup
+    :telemetry.detach(handler_id)
 
     # Stop the queue
     Oban.stop_queue(queue: :benchmark)
@@ -455,6 +472,20 @@ defmodule ComparisonBenchmark do
     cleanup_oban_jobs()
 
     ensure_oban_running()
+
+    # Use counter for fair comparison (same as BullMQ)
+    processed = :counters.new(1, [:atomics])
+
+    # Attach telemetry handler to track completions
+    handler_id = "benchmark_cpu_completion_handler_#{:erlang.unique_integer([:positive])}"
+    :telemetry.attach(
+      handler_id,
+      [:oban, :job, :stop],
+      fn _event, _measurements, _metadata, _config ->
+        :counters.add(processed, 1, 1)
+      end,
+      nil
+    )
 
     changesets = for i <- 1..job_count do
       ObanWorker.new(%{index: i, type: "cpu"})
@@ -471,12 +502,15 @@ defmodule ComparisonBenchmark do
     start_time = System.monotonic_time(:microsecond)
 
     timeout = 300_000
-    wait_for_oban_completion(job_count, timeout)
+    wait_for_completion(processed, job_count, timeout)
 
     end_time = System.monotonic_time(:microsecond)
     time_ms = (end_time - start_time) / 1000
 
-    completed = count_oban_completed()
+    completed = :counters.get(processed, 1)
+
+    # Cleanup
+    :telemetry.detach(handler_id)
 
     # Stop the queue
     Oban.stop_queue(queue: :benchmark)
@@ -487,29 +521,6 @@ defmodule ComparisonBenchmark do
 
   defp cleanup_oban_jobs do
     Repo.delete_all(Oban.Job)
-  end
-
-  defp count_oban_completed do
-    import Ecto.Query
-    Repo.aggregate(from(j in Oban.Job, where: j.state == "completed"), :count)
-  end
-
-  defp wait_for_oban_completion(target, timeout) do
-    deadline = System.monotonic_time(:millisecond) + timeout
-    do_wait_oban(target, deadline)
-  end
-
-  defp do_wait_oban(target, deadline) do
-    completed = count_oban_completed()
-    now = System.monotonic_time(:millisecond)
-
-    cond do
-      completed >= target -> :ok
-      now >= deadline -> :timeout
-      true ->
-        Process.sleep(100)
-        do_wait_oban(target, deadline)
-    end
   end
 
   # Ensure Oban is running (start if not already running)
