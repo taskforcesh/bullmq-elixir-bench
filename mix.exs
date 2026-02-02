@@ -39,6 +39,9 @@ defmodule BullmqObanBench.MixProject do
       # Redis client (pulled by BullMQ but explicit for clarity)
       {:redix, "~> 1.3"},
 
+      # https://hex.pm/packages/benchee
+      {:benchee, "~> 1.5"},
+
       # Documentation
       {:ex_doc, "~> 0.31", only: :dev, runtime: false}
     ]

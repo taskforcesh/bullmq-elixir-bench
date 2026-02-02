@@ -19,6 +19,10 @@ This benchmark compares two popular Elixir job queue libraries:
 - **Redis** running on localhost:6379
 - **PostgreSQL** running on localhost:5432
 
+### Docker Compose
+
+To start working Postgres and Redis instances: `docker compose up --detach`
+
 ## Quick Start
 
 ```bash
@@ -232,4 +236,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
-
