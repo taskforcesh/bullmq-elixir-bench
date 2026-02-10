@@ -9,7 +9,7 @@ config :bullmq_oban_bench, BullmqObanBench.Repo,
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   hostname: System.get_env("POSTGRES_HOST", "localhost"),
   port: String.to_integer(System.get_env("POSTGRES_PORT", "5432")),
-  pool_size: 20,
+  pool_size: 150,  # Should exceed max concurrency to avoid connection contention
   log: false
 
 # Redis configuration for BullMQ

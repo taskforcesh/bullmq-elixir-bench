@@ -26,8 +26,8 @@ defmodule BullmqObanBench.MixProject do
 
   defp deps do
     [
-      # BullMQ for Redis-based job queue
-      {:bullmq, "~> 1.2"},
+      # BullMQ for Redis-based job queue (local dev version)
+      {:bullmq, path: "../bullmq/elixir"},
 
       # Oban for PostgreSQL-based job queue
       {:oban, "~> 2.18"},
