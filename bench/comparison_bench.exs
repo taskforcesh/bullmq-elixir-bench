@@ -269,7 +269,6 @@ defmodule ComparisonBenchmark do
     bullmq_concurrent_bulk_stats = BenchStats.calculate(Enum.map(bullmq_concurrent_bulk_results, & &1.rate))
     oban_concurrent_bulk_stats = BenchStats.calculate(Enum.map(oban_concurrent_bulk_results, & &1.rate))
 
-    IO.puts("\n  Best results:")
     IO.puts("\n  Statistics (jobs/sec):")
     IO.puts("    BullMQ: #{BenchStats.format_stats(bullmq_concurrent_bulk_stats)}")
     IO.puts("    Oban:   #{BenchStats.format_stats(oban_concurrent_bulk_stats)}")
