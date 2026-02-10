@@ -102,7 +102,7 @@ defmodule BulkBenchmark do
 
     Enum.chunk_every(jobs, 5000)
     |> Enum.each(fn batch ->
-      {:ok, _} = Queue.add_bulk(queue_name, batch, connection: conn, chunk_size: 1000)
+      {:ok, _} = Queue.add_bulk(queue_name, batch, connection: conn)
     end)
 
     elapsed_ms = (System.monotonic_time(:microsecond) - start) / 1000

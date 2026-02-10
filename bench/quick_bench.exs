@@ -130,6 +130,7 @@ defmodule QuickBenchmark do
       queue: queue_name,
       connection: worker_conn,
       concurrency: concurrency,
+      drain_delay: 0.1,
       processor: fn _job ->
         Process.sleep(duration_ms)
         :counters.add(processed, 1, 1)
